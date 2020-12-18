@@ -19,6 +19,7 @@ https://discord.com/api/oauth2/authorize?client_id=689443153174069290&permission
  
 サーバーは3時ごろに再起動します。
 
+
 モードは、2タイプ存在します
 
 ①メインモード
@@ -32,4 +33,5 @@ https://discord.com/api/oauth2/authorize?client_id=689443153174069290&permission
 ![ass](https://user-images.githubusercontent.com/58265068/102564224-4f49e800-411e-11eb-8336-b4ed4561609e.JPG)
 
 開発者による機能確認用のモードです。正常に動作しない可能性があります。
+
 このモード中はメンテナンス中だと思ってください。
