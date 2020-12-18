@@ -7,7 +7,7 @@ BOT_PREFIX = ('??', '!!')
 
 client = commands.Bot(command_prefix=BOT_PREFIX)
 
-activity = discord.Activity(name='メインモード', type=discord.ActivityType.playing)
+activity = discord.Activity(name='テストモード', type=discord.ActivityType.playing)
 
 @client.command(description="あああああああああ",
                 brief="いいいあｓだｓｄ")
