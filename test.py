@@ -7,6 +7,7 @@ import json
 import numpy as np
 from WeatherBot import Weather
 from ToolsBot import Tools
+from COVIDBot import COVID
 
 BOT_PREFIX = ('!!')
 
@@ -56,4 +57,5 @@ async def on_ready():
 
 client.add_cog(Weather(bot=client))
 client.add_cog(Tools(bot=client))
+client.add_cog(COVID(bot=client))
 client.run(os.environ.get("DISCORD_TOKEN"))
