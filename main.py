@@ -5,9 +5,14 @@ import logging
 import requests
 import json
 import numpy as np
+import ffmpeg
+import subprocess
+import asyncio
 from WeatherBot import Weather
 from ToolsBot import Tools
 from COVIDBot import COVID
+from ReadBot import Read
+from voice_generator import creat_WAV
 
 BOT_PREFIX = ('!!')
 
@@ -23,6 +28,7 @@ class JapaneseHelpCommand(commands.DefaultHelpCommand):
                 f"各カテゴリの説明: {BOT_PREFIX}help <カテゴリ名>\n")
 
 client = commands.Bot(command_prefix=BOT_PREFIX, help_command=JapaneseHelpCommand())
+voice_client = None
 
 activity = discord.Activity(name='メインモード', type=discord.ActivityType.playing)
 
@@ -45,6 +51,21 @@ async def on_message(message):
         msg = "にゃ～ん" + message.author.name + "🐈\n"
         await message.channel.send(msg)
 
+    msgclient = message.guild.voice_client
+
+    if message.content.startswith(BOT_PREFIX):
+        pass
+
+    else:
+        if message.guild.voice_client:
+            print(message.content)
+            creat_WAV(message.content)
+            source = discord.FFmpegPCMAudio("output.wav")
+            message.guild.voice_client.play(source)
+        else:
+            pass
+    await client.process_commands(message)
+
 @client.event
 async def on_command_error(ctx, error):
     logger.error(error)
@@ -58,4 +79,5 @@ async def on_ready():
 client.add_cog(Weather(bot=client))
 client.add_cog(Tools(bot=client))
 client.add_cog(COVID(bot=client))
+client.add_cog(Read(bot=client))
 client.run(os.environ.get("DISCORD_TOKEN"))
