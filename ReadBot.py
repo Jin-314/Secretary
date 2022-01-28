@@ -13,6 +13,7 @@ class Read(commands.Cog):
     @commands.command(description="ボイスチャンネルに接続し、読み上げを開始します。",
                       brief="読み上げの開始")
     async def join(self, ctx):
+        #readNow = True
         print('voicechannelを取得')
         vc = ctx.author.voice.channel
         print('voicechannelに接続')
@@ -21,5 +22,6 @@ class Read(commands.Cog):
     @commands.command(description="ボイスチャンネルから切断し、読み上げを終了します。",
                       brief="読み上げの終了")
     async def bye(self, ctx):
+        #readNow = False
         print ('切断')
         await ctx.voice_client.disconnect()

@@ -39,6 +39,7 @@ logger = logging.getLogger('discord')
 
 @client.event
 async def on_message(message):
+    global channelid
     await client.process_commands(message)
 
     #Botとメッセージの送信者が同じ場合は何もしない
@@ -51,19 +52,22 @@ async def on_message(message):
         msg = "にゃ～ん" + message.author.name + "🐈\n"
         await message.channel.send(msg)
 
-    msgclient = message.guild.voice_client
+    if message.content == "!!join":
+        channelid = message.channel.id
+        print(channelid)
 
     if message.content.startswith(BOT_PREFIX):
         pass
 
     else:
         if message.guild.voice_client:
-            print(message.content)
-            creat_WAV(message.content)
-            source = discord.FFmpegPCMAudio("output.wav")
-            message.guild.voice_client.play(source)
-        else:
-            pass
+            if message.channel.id == channelid:
+                print(message.content)
+                creat_WAV(message.content)
+                source = discord.FFmpegPCMAudio("output.wav")
+                message.guild.voice_client.play(source)
+            else:
+                pass
     await client.process_commands(message)
 
 @client.event
