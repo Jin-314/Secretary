@@ -50,7 +50,7 @@ class Weather(commands.Cog):
         embed.add_field(name="湿度",value=data["current"]["humidity"])
         await ctx.send(embed=embed)
 
-    @commands.command(description="お天気予報を出します。", brief="お天気予報")
+    @commands.command(description="お天気予報を出します。dateには何日後の予報か入力してください。", brief="お天気予報")
     async def WF(self, ctx, city_name, date):
         data = self.getData(city_name)
         index = int(re.sub("\\D", "", date))
