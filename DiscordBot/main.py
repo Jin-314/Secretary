@@ -3,11 +3,6 @@ from discord.ext import commands
 import discord
 import logging
 import requests
-import json
-import numpy as np
-import ffmpeg
-import subprocess
-import asyncio
 from WeatherBot import Weather
 from ToolsBot import Tools
 from COVIDBot import COVID
@@ -40,7 +35,6 @@ logger = logging.getLogger('discord')
 @client.event
 async def on_message(message):
     global channelid
-    await client.process_commands(message)
 
     #Botとメッセージの送信者が同じ場合は何もしない
     if client.user == message.author:
