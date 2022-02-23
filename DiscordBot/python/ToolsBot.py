@@ -10,5 +10,5 @@ class Tools(commands.Cog):
 
     @commands.command(description="後に続く数の和を求めます。",
                     brief="数の合計")
-    async def add(ctx, *num: float):
+    async def add(self, ctx, *num: float):
         await ctx.send(np.sum(num))
