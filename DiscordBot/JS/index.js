@@ -1,7 +1,7 @@
 const { Client, Collection, Intents} = require('discord.js');
 const fs = require('fs');
-const musicPlayer = require("./commands/PlayMusic");
-const read = require("./commands/ReadBot.js");
+const path = require('path');
+const read = require(path.join(__dirname, "/commands/ReadBot.js"));
 
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES);
@@ -11,10 +11,10 @@ const client = new Client({ intents: myIntents })
 
 client.commands = new Collection();
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync(path.join(__dirname, "/commands/")).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
+    const command = require(path.join(__dirname, `/commands/${file}`));
     client.commands.set(command.data.name, command);
 }
 
@@ -26,26 +26,10 @@ client.on('ready', message =>{
 client.on('message', message =>{
     if(message.author.bot) return; //BOTのメッセージには反応しない
 
-    if(message.content === "stop"){
-        if(message.channel.toString() === musicPlayer.channel){
-            if(musicPlayer.player.state.status === "playing"){
-                message.reply('再生を終了します。');
-                musicPlayer.player.stop();
-            }
-        }
-    }
     if(read.isReadStarted && read.channel === message.channel.toString()){
-        if(message.content === "/stop"){
-            message.reply('読み上げを終了します。');
-            read.player.stop();
-            read.conn.destroy();
-            read.isReadStarted = false;
-        }else{
-            read.talk(message);
-        }        
+        read.talk(message); 
     }
-
-})
+});
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
