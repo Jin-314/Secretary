@@ -1,14 +1,18 @@
 # Jin's Secretary
  
-私の忠実なる僕"Jinの秘書"のオープンソースレポジトリです！！
-  
+Jinの忠実なるしもべ"Jinの秘書"のオープンソースレポジトリです！！
+
 # Requirement
 
+このBOTは複数のSNSにて運用されるbotになります。
+DiscordやTwitterなどに様々な情報を発信します。
+
 自分の管理するDiscordサーバーに導入が可能です！
-導入には管理者権限が必要です
+導入には管理者権限が必要です。
  
 # Usage
- 
+
+DiscordBotの招待
 以下のページにアクセス↓
 
 https://discord.com/api/oauth2/authorize?client_id=689443153174069290&permissions=0&scope=bot
