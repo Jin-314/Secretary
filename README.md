@@ -18,7 +18,7 @@ DiscordやTwitterなどに様々な情報を発信します。
 DiscordBotの招待
 以下のページにアクセス↓
 
-https://discord.com/api/oauth2/authorize?client_id=689443153174069290&permissions=8&scope=applications.commands%20bot
+https://discord.com/api/oauth2/authorize?client_id=1046616624934957106&permissions=8&scope=bot%20applications.commands
 
 自分が管理者のサーバーを選択し、招待！！
  
