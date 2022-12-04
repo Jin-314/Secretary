@@ -2,7 +2,7 @@ const { Client, Collection, GatewayIntentBits, ActivityType} = require('discord.
 const fs = require('fs');
 const path = require('path');
 const read = require(path.join(__dirname, "/commands/ReadBot.js"));
-const NG_list = ["ちんちん", "ちんこ", "ちん個", "まん個", "ππ" , "ちんぽ", "をっぱい", "下ネタ", "おっΠ", "Ππ", "おっπ", "シコシコ", "しこしこ", "まんこ", "おっぱい", "精子", "射精", "包茎", "ぺろぺろ"];
+const NG_list = ["ㄘんㄘん", "ቻﾝቻﾝ", "オっπ", "ちんちん", "ちんこ", "ちん個", "まん個", "ππ" , "ちんぽ", "をっぱい", "下ネタ", "おっΠ", "Ππ", "おっπ", "シコシコ", "しこしこ", "まんこ", "おっぱい", "精子", "射精", "包茎", "ぺろぺろ"];
 // Discord Clientのインスタンス作成
 const client = new Client({ intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] })
 

@@ -4,6 +4,8 @@ const path = require('path');
 const OpenJTalk = require(path.join(__dirname, '/CommandModules/OpenJTalk'));
 const JSON5     = require('json5');
 const emoji     = require('node-emoji');
+const fs        = require('fs');
+const voicePath = path.join(__dirname, "/BotData/VoiceData.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,7 +18,16 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
             .setName('stop')
-            .setDescription('テキスト読み上げを停止します。')),
+            .setDescription('テキスト読み上げを停止します。'))
+        .addSubcommand(subcommand =>
+            subcommand
+            .setName('voice')
+            .setDescription('声を変更します。')
+            .addStringOption(option =>
+                option
+                .setName('name')
+                .setDescription('誰の声にするか。')
+                .setRequired(true))),
     channels : new Array(),
     isReadStarted : {},
     VoiceConfig : {
@@ -29,6 +40,48 @@ module.exports = {
             mei_bashful : '/usr/share/hts-voice/mei/mei_bashful',
             mei_happy   : '/usr/share/hts-voice/mei/mei_happy',
             mei_sad     : '/usr/share/hts-voice/mei/mei_sad',
+            takumi      : '/usr/share/hts-voice/takumi/takumi_normal',
+            takumi_angry: '/usr/share/hts-voice/takumi/takumi_angry',
+            takumi_happy: '/usr/share/hts-voice/takumi/takumi_happy',
+            takumi_sad  : '/usr/share/hts-voice/takumi/takumi_sad',
+            gentlemen   : '/usr/share/hts-voice/20代男性01_1.0/20代男性01',
+            nitech      : '/usr/share/hts-voice/ts_voice_nitech_jp_atr503_m001-1.05/nitech_jp_atr503_m001',
+            tohoku      : '/usr/share/hts-voice/tohoku/tohoku-f01-neutral',
+            tohoku_angry: '/usr/share/hts-voice/tohoku/tohoku-f01-angry',
+            tohoku_happy: '/usr/share/hts-voice/tohoku/tohoku-f01-happy',
+            tohoku_sad  : '/usr/share/hts-voice/tohoku/tohoku-f01-sad',
+            nanairo     : '/usr/share/hts-voice/なないろニジ_1.0/なないろニジ',
+            giruko      : '/usr/share/hts-voice/カマ声ギル子_1.0/?カマ声ギル子',
+            gurimaru    : '/usr/share/hts-voice/グリマルキン_1.0/グリマルキン_1.0',
+            sranki      : '/usr/share/hts-voice/スランキ_1.0/スランキ ',
+            watashi     : '/usr/share/hts-voice/ワタシ_1.0/ワタシ',
+            wamea       : '/usr/share/hts-voice/飴音わめあ_1.0/飴音わめあ',
+            sakura      : '/usr/share/hts-voice/闇夜 桜_1.0/闇夜 桜_1.0',
+            ai          : '/usr/share/hts-voice/遠藤愛_1.0/遠藤愛',
+            rakan       : '/usr/share/hts-voice/戯歌ラカン_1.0/戯歌ラカン',
+            kaoru       : '/usr/share/hts-voice/京歌カオル_1.0/京歌カオル',
+            kono        : '/usr/share/hts-voice/句音コノ。_1.0/句音コノ。',
+            kanata      : '/usr/share/hts-voice/空唄カナタ_1.0/空唄カナタ',
+            rami        : '/usr/share/hts-voice/月音ラミ_1.0/月音ラミ_1.0',
+            homu        : '/usr/share/hts-voice/沙音ほむ_1.0/沙音ほむ',
+            rou         : '/usr/share/hts-voice/獣音ロウ_1.0/獣音ロウ',
+            yoe         : '/usr/share/hts-voice/唱地ヨエ_1.0/唱地ヨエ',
+            matsuo      : '/usr/share/hts-voice/松尾P_1.0/松尾P',
+            huuki       : '/usr/share/hts-voice/薪宮風季_1.0/薪宮風季',
+            mizuki      : '/usr/share/hts-voice/瑞歌ミズキ_Talk_1.0/瑞歌ミズキ_Talk',
+            koto        : '/usr/share/hts-voice/誠音コト_1.0/誠音コト',
+            ikuto       : '/usr/share/hts-voice/想音いくと_1.0/想音いくと',
+            ikuru       : '/usr/share/hts-voice/想音いくる_1.0/想音いくる',
+            nero        : '/usr/share/hts-voice/蒼歌ネロ_1.0/蒼歌ネロ',
+            riyon       : '/usr/share/hts-voice/天月りよん_1.0/天月りよん',
+            momo        : '/usr/share/hts-voice/桃音モモ_1.0/桃音モモ',
+            sou         : '/usr/share/hts-voice/能民音ソウ_1.0/能民音ソウ',
+            mai         : '/usr/share/hts-voice/白狐舞_1.0/白狐舞',
+            akesato     : '/usr/share/hts-voice/緋惺_1.0/緋惺',
+            ichiri      : '/usr/share/hts-voice/遊音一莉_1.0/遊音一莉',
+            shiba       : '/usr/share/hts-voice/和音シバ_1.0/和音シバ',
+            miku_a      : '/usr/share/hts-voice/miku/miku-a',
+            miku_b      : '/usr/share/hts-voice/miku/miku-b'
         }
     },
     OpenJTalkOptions : [
@@ -40,9 +93,6 @@ module.exports = {
         ["jf",   0, 99],
         ["r",    0, 99],
         ["fm", -99, 99]
-    ],
-    VoiceSettings : [
-        'voice:"mei"'
     ],
     VoiceSetting : {
         res : {},
@@ -103,6 +153,17 @@ module.exports = {
             }else{
                 interaction.reply('読み上げは開始されていません。')
             }
+        }else if(interaction.options.getSubcommand() === "voice"){
+            const userid = interaction.user.id;
+            const data = JSON.parse(fs.readFileSync(voicePath, 'UTF-8'));
+            const voice = interaction.options.getString('name');
+            if(this.VoiceConfig.voice_list[voice] != null){
+                data[userid] = "voice: '" + voice + "'";
+                fs.writeFileSync(voicePath, JSON.stringify(data));
+                await interaction.reply(`あなたの声を${voice}に設定しました。`);
+            }else{
+                await interaction.reply(`${voice}は存在しない何者かの声です。`)
+            }
         }
     },
     
@@ -146,10 +207,20 @@ module.exports = {
     },
     talk(message) {
         const guildid = message.guild.id;
-        console.log(guildid)
-        this.VoiceSetting = this.parse_option(this.VoiceSettings[0]);
+        const userid = message.author.id;
+        const data = JSON.parse(fs.readFileSync(voicePath, 'UTF-8'));
+        if(data[userid]!=null){
+            this.VoiceSetting = this.parse_option(data[userid]);
+        }else{
+            var keys = Object.keys(this.VoiceConfig.voice_list);
+            var randomKey = keys[Math.floor(Math.random()*keys.length)];
+            data[userid] = "voice: '" + randomKey + "'";
+            fs.writeFileSync(voicePath, JSON.stringify(data));
+            this.VoiceSetting = this.parse_option(data[userid]);
+            message.reply(`あなたの声を${randomKey}に設定しました。`)
+        }
         if(this.VoiceSetting.res_message != ""){
-            console.error("System Setting Parse Error", VoiceSetting);
+            console.error("System Setting Parse Error", this.VoiceSetting);
         }
         if(message.guild == null) return;
         this.jtalks[guildid] = new OpenJTalk(this.VoiceConfig, this.VoiceSetting.res);
