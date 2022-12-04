@@ -1,6 +1,7 @@
 # Jin's Secretary
  
 Jinの忠実なるしもべ"Jinの秘書"のオープンソースレポジトリです！！
+![画像の説明](img/Secretary-Icon.png)
 
 # Requirement
 
