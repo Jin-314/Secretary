@@ -1,7 +1,9 @@
 # Jin's Secretary
  
 Jinの忠実なるしもべ"Jinの秘書"のオープンソースレポジトリです！！
-<img src="img/Secretary-Icon.png" width="320px">
+<div>
+ <img src="img/Secretary-Icon.png" width="320px">
+</div>
 
 # Requirement
 
