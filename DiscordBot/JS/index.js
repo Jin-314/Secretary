@@ -1,13 +1,10 @@
-const { Client, Collection, Intents} = require('discord.js');
+const { Client, Collection, GatewayIntentBits, ActivityType} = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const read = require(path.join(__dirname, "/commands/ReadBot.js"));
-
-const myIntents = new Intents();
-myIntents.add(Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES);
-
+const NG_list = ["ちんちん", "ちんこ", "ちん個", "まん個", "ππ" , "ちんぽ", "をっぱい", "下ネタ", "おっΠ", "Ππ", "おっπ", "シコシコ", "しこしこ", "まんこ", "おっぱい", "精子", "射精", "包茎", "ぺろぺろ"];
 // Discord Clientのインスタンス作成
-const client = new Client({ intents: myIntents })
+const client = new Client({ intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] })
 
 client.commands = new Collection();
 
@@ -20,14 +17,26 @@ for (const file of commandFiles) {
 
 client.on('ready', message =>{
     console.log('Bot準備完了！');
-    client.user.setActivity('Jinとのあれこれ', {type : 'PLAYING'});
+    client.user.setPresence({
+        activities: [{ name: `Jinとのあれこれ`, type: ActivityType.Playing }]});
 });
 
-client.on('message', message =>{
+client.on('messageCreate', message =>{
+    var isNG = false;
     if(message.author.bot) return; //BOTのメッセージには反応しない
 
-    if(read.isReadStarted && read.channel === message.channel.toString()){
-        read.talk(message); 
+    NG_list.forEach(val => {
+        if(message.content.match(val)){
+            console.log("NG Words Included");
+            message.channel.send(message.author.toString() + '\nあなた本当に気持ち悪いですね。対処させていただきます。');
+            message.delete(100);
+            isNG = true;
+        }
+    });
+
+    if(!isNG && read.isReadStarted[message.guild.id] && read.channels[message.guild.id] === message.channel.toString()){
+
+        read.talk(message);
     }
 });
 

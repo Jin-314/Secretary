@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const XMLHttpRequest = require('xhr2');
 
 module.exports = {
@@ -24,39 +24,41 @@ module.exports = {
 
             await interaction.reply('Getting data...');
 
-            let requestPatient = new XMLHttpRequest();
-            let requestDeath = new XMLHttpRequest();
-            requestPatient.open('GET', "https://data.corona.go.jp/converted-json/covid19japan-npatients.json");
-            requestDeath.open('GET', "https://data.corona.go.jp/converted-json/covid19japan-ndeaths.json");
-            requestPatient.responseType = 'json';
-            requestDeath.responseType = 'json';
-            requestPatient.send();
-            requestDeath.send();
-            const embed = new MessageEmbed().setColor("0xff0000");
+            var request = new XMLHttpRequest();
+            request.open('GET', "https://data.corona.go.jp/converted-json/covid19japan-npatients.json");
+            request.responseType = 'json';
+            request.send();
     
-            requestPatient.onload = async function(){
-                const dataPatient = requestPatient.response;
-                const idxPatient = dataPatient.length - 1;
-                const dt = new Date(dataPatient[idxPatient].date);
+            request.onload = async function(){
+                var data = request.response;
+                var idx = data.length - 1;
+                const dt = new Date(data[idx].date);
 
-                embed.setTitle("全国の" + dt.getFullYear() + "年" + (dt.getMonth() + 1) + "月" + dt.getDate() + "日のCOVID情報");
-                embed.addField("感染者情報", "全国の感染者情報です。");
-                embed.addField("累計感染者数", dataPatient[idxPatient].npatients + "人", true);
-                embed.addField("1日の感染者数", dataPatient[idxPatient].adpatients + "人", true);
+                const embed = new EmbedBuilder()
+                    .setColor("0xff0000")
+                    .setTitle("全国の" + dt.getFullYear() + "年" + (dt.getMonth() + 1) + "月" + dt.getDate() + "日のCOVID情報")
+                    .addFields(
+                        {name: "感染者情報", value: "全国の感染者情報です。"},
+                        {name: "累計感染者数", value: data[idx].npatients + "人", inline: true},
+                        {name: "1日の感染者数", value: data[idx].adpatients + "人", inline: true})
                 
-                await interaction.editReply('Getting data...Done');
-                await interaction.editReply({ embeds : [embed]});
-            }
-            requestDeath.onload = async function(){
-                const dataDeath = requestDeath.response;
-                const idxDeath = dataDeath.length - 1;
+                request = new XMLHttpRequest();
+                request.open('GET', "https://data.corona.go.jp/converted-json/covid19japan-ndeaths.json");
+                request.responseType = 'json';
+                request.send();
 
-                embed.addField("死者情報", "全国の死者情報です。");
-                embed.addField("累計死者数", dataDeath[idxDeath].ndeaths + "人", true);
-                embed.addField("1日の死者数", (dataDeath[idxDeath].ndeaths - dataDeath[idxDeath-1].ndeaths) + "人", true);
-                
-                await interaction.editReply('Getting data...Done');
-                await interaction.editReply({ embeds : [embed] });
+                request.onload = async function(){
+                    data = request.response;
+                    idx = data.length - 1;
+    
+                    embed.addFields(
+                        {name: "死者情報", value: "全国の死者情報です。"},
+                        {name: "累計死者数", value: data[idx].ndeaths + "人", inline: true},
+                        {name: "1日の死者数", value: (data[idx].ndeaths - data[idx-1].ndeaths) + "人", inline: true});
+                    
+                    await interaction.editReply('Getting data...Done');
+                    await interaction.editReply({ embeds : [embed] });
+                }
             }
         
         }else if(interaction.options.getSubcommand() === "prefecture"){
@@ -68,20 +70,26 @@ module.exports = {
             request.responseType = 'json';
             request.send();
 
-            const embed = new MessageEmbed().setColor("0x4b0082");
+            const embed = new EmbedBuilder().setColor("0x4b0082");
 
             request.onload = async function(){
                 const data = request.response;
-                const dt = new Date(data.itemList[0].date);
+                if(data.itemList.length > 0){
+                    const dt = new Date(data.itemList[0].date);
 
-                embed.setTitle(interaction.options.getString('prefecture') + "の" + dt.getFullYear() + "年"
-                                    + (dt.getMonth() + 1) + "月" + dt.getDate() + "日のCOVID情報");
-                embed.addField("感染者情報", interaction.options.getString('prefecture') + "の感染者情報です。");
-                embed.addField("累計感染者数", data.itemList[0].npatients + "人");
-                embed.addField("1日の感染者数", (data.itemList[0].npatients - data.itemList[1].npatients) + "人");
-
-                await interaction.editReply('Getting data...Done');
-                await interaction.editReply({ embeds : [embed] })
+                    embed.setTitle(interaction.options.getString('prefecture') + "の" + dt.getFullYear() + "年"
+                                        + (dt.getMonth() + 1) + "月" + dt.getDate() + "日のCOVID情報");
+                    embed.addFields(
+                        {name: "感染者情報", value: interaction.options.getString('prefecture') + "の感染者情報です。"},
+                        {name: "累計感染者数", value: data.itemList[0].npatients + "人", inline: true},
+                        {name: "1日の感染者数", value: (data.itemList[0].npatients - data.itemList[1].npatients) + "人", inline: true});
+    
+                    await interaction.editReply('Getting data...Done');
+                    await interaction.editReply({ embeds : [embed] });
+                }else{
+                    await interaction.editReply('県名を正しく入力してください。');
+                    return;
+                }
             }
         }
     }

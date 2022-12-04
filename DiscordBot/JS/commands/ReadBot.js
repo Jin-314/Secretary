@@ -17,8 +17,8 @@ module.exports = {
             subcommand
             .setName('stop')
             .setDescription('テキスト読み上げを停止します。')),
-    channel : '',
-    isReadStarted : false,
+    channels : new Array(),
+    isReadStarted : {},
     VoiceConfig : {
         openjtalk_bin : 'open_jtalk',
         dic_dir       : '/var/lib/mecab/dic/open-jtalk/naist-jdic',
@@ -48,13 +48,14 @@ module.exports = {
         res : {},
         res_message : '',
     },
-    player : new AudioPlayer(),
-    conn : {},
+    player : new Array(),
+    jtalks : new Object(),
+    conn : new Object,
     async execute(interaction){
         if (interaction.options.getSubcommand() === "start"){
-            this.channel = interaction.channel.toString();
-    
             const guild = interaction.guild;
+            const guildid = interaction.guild.id;
+            this.channels[guildid] = interaction.channel.toString();
             const member = await guild.members.fetch(interaction.member.id);
             const memberVC = member.voice.channel;
     
@@ -86,17 +87,19 @@ module.exports = {
                 selfMute: false,
             });
     
-            this.player = createAudioPlayer();
-            this.conn.subscribe(this.player);
+            this.player[guildid] = new AudioPlayer();
+            this.player[guildid] = createAudioPlayer();
+            this.conn.subscribe(this.player[guildid]);
     
-            this.isReadStarted = true;
+            this.isReadStarted[interaction.guild.id] = true;
 
         }else if(interaction.options.getSubcommand() === "stop"){
-            if(this.isReadStarted){
+            const guildid = interaction.guild.id;
+            if(this.isReadStarted[interaction.guild.id]){
                 interaction.reply('読み上げを終了します。');
-                this.player.stop();
+                this.player[guildid].stop();
                 this.conn.destroy();
-                this.isReadStarted = false;
+                this.isReadStarted[interaction.guild.id] = false;
             }else{
                 interaction.reply('読み上げは開始されていません。')
             }
@@ -142,15 +145,15 @@ module.exports = {
         return {res, res_message};
     },
     talk(message) {
+        const guildid = message.guild.id;
+        console.log(guildid)
         this.VoiceSetting = this.parse_option(this.VoiceSettings[0]);
         if(this.VoiceSetting.res_message != ""){
             console.error("System Setting Parse Error", VoiceSetting);
         }
-        var jtalks = new Object();
         if(message.guild == null) return;
-        const gid = message.guild.id;
-        jtalks[gid] = new OpenJTalk(this.VoiceConfig, this.VoiceSetting.res);
-    
+        this.jtalks[guildid] = new OpenJTalk(this.VoiceConfig, this.VoiceSetting.res);
+
         let str = message.content;
         str=str.replace(/(h?ttps?:\/\/)([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=~]*)?/g, ' URL省略 ');
         str=str.replace(/<(@!|#)[0-9]+>/g, ''); // ユーザー・チャンネル名削除
@@ -161,7 +164,7 @@ module.exports = {
         
         console.log("str: ", str);
     
-        jtalks[gid].makeWav(str, (err, res)=>{
+        this.jtalks[guildid].makeWav(str, (err, res)=>{
             try {
                 fs.unlinkSync(res.txt_path);
             } catch (error) {
@@ -174,7 +177,7 @@ module.exports = {
                 return;
             }
             const resource = createAudioResource(res.wav);
-            this.player.play(resource);
+            this.player[guildid].play(resource);
         });
     }
 }
