@@ -2,7 +2,6 @@ const { Client, Collection, GatewayIntentBits, ActivityType} = require('discord.
 const fs = require('fs');
 const path = require('path');
 const read = require(path.join(__dirname, "/commands/ReadBot.js"));
-const NG_list = ["ㄘんㄘん", "ቻﾝቻﾝ", "オっπ", "ちんちん", "ちんこ", "ちん個", "まん個", "ππ" , "ちんぽ", "をっぱい", "下ネタ", "おっΠ", "Ππ", "おっπ", "シコシコ", "しこしこ", "まんこ", "おっぱい", "精子", "射精", "包茎", "ぺろぺろ"];
 // Discord Clientのインスタンス作成
 const client = new Client({ intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] })
 
@@ -22,19 +21,9 @@ client.on('ready', message =>{
 });
 
 client.on('messageCreate', message =>{
-    var isNG = false;
     if(message.author.bot) return; //BOTのメッセージには反応しない
 
-    NG_list.forEach(val => {
-        if(message.content.match(val)){
-            console.log("NG Words Included");
-            message.channel.send(message.author.toString() + '\nあなた本当に気持ち悪いですね。対処させていただきます。');
-            message.delete(100);
-            isNG = true;
-        }
-    });
-
-    if(!isNG && read.isReadStarted[message.guild.id] && read.channels[message.guild.id] === message.channel.toString()){
+    if(read.isReadStarted[message.guild.id] && read.channels[message.guild.id] === message.channel.toString()){
 
         read.talk(message);
     }

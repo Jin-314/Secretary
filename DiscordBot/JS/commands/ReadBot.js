@@ -26,7 +26,7 @@ module.exports = {
             .addStringOption(option =>
                 option
                 .setName('name')
-                .setDescription('誰の声にするか。')
+                .setDescription('誰の声にするか。"list"と入力すると読み上げ可能な音声のリストを取得できます。')
                 .setRequired(true))),
     channels : new Array(),
     isReadStarted : {},
@@ -161,6 +161,12 @@ module.exports = {
                 data[userid] = "voice: '" + voice + "'";
                 fs.writeFileSync(voicePath, JSON.stringify(data));
                 await interaction.reply(`あなたの声を${voice}に設定しました。`);
+            }else if(voice === "list"){
+                let str = "\n**読み上げ可能な音声のリストです。**\n\n"
+                for(const key in this.VoiceConfig.voice_list){
+                    str += `> ${key}\n`;
+                }
+                await interaction.reply(str);
             }else{
                 await interaction.reply(`${voice}は存在しない何者かの声です。`)
             }
